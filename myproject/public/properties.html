@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Properties | JSM Realty</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+    integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+</head>
+
+<body>
+
+  <!-- Header -->
+  <div id="navbar"></div>
+
+
+  <div class="bg-light">
+
+    <div class="container">
+      <form class="form-inline py-5">
+        <div class="form-group mx-auto">
+          <input type="search" class="form-control mr-2 p-2 search" name="search" id="search"
+            placeholder="Search Properties by ZIP Code...">
+          <input type="number" class="form-control mr-2 p-2" name="baths" id="baths" placeholder="No. Of Baths">
+          <input type="number" class="form-control mr-2 p-2 " name="beds" id="beds" placeholder="No. Of Beds">
+          <input type="number" class="form-control mr-2 p-2 " name="stories" id="stories"
+            placeholder="No. Of Floors">
+        </div>
+
+        <div class="form-group mx-auto mt-3">
+          <label for="rangeInput" class="ml-5">Price Range: </label>
+          <input type="number" class="form-control mx-2" id="min" placeholder="Min Price" step="1">
+          <input type="number" class="form-control mx-2" id="max" placeholder="Max Price" step="1">
+          <button type="button" onclick="getSearch()" class="btn btn-primary mx-2 rounded">Search</button>
+          <!-- <button type="button" onclick="this.form.reset(); getSearch()" class="btn btn-outline-primary mx-2 rounded">Clear</button> -->
+
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Featured Listings -->
+  <div class="container">
+    <h2 class="text-center mt-5">All Properties</h2>
+    <hr width="50" color="#007bff">
+    <div class="row" id="properties">
+      <p class="text-center w-100">
+        <span class="loader" style="width: 50px; height: 50px;"></span>
+      </p>
+    </div>
+
+  </div>
+
+  <br>
+
+
+  <!-- Footer -->
+  <footer class="footer py-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4">
+          <h4>About Us</h4>
+          <p>Our realty corporation is based on selling properties within a certain zipcode grid.
+            You will be consistently updated on new properties as they enter the market.</p>
+        </div>
+        <div class="col-md-4">
+          <h4>Contact Us</h4>
+          <p>11 Wall Street<br>
+            New York, NY 10005<br>
+            (555) 555-1212<br>
+            info@realestate.com</p>
+        </div>
+        <div class="col-md-4">
+          <h4>Follow Us</h4>
+          <a href="#"><i class="fab fa-facebook fa-2x mx-2"></i></a>
+          <a href="#"><i class="fab fa-twitter fa-2x mx-2"></i></a>
+          <a href="#"><i class="fab fa-instagram fa-2x mx-2"></i></a>
+          <a href="#"><i class="fab fa-linkedin fa-2x mx-2"></i></a>
+        </div>
+      </div>
+    </div>
+
+  </footer>
+  <div class="footer-bottom text-white p-2 text-center">
+    <p>Copyright @ 2023 By JSM Realty</p>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-storage.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-auth.js"></script>
+
+  <script src="js/firebase.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/booking.js"></script>
+  <script>
+    var database = firebase.database();
+    var loader = document.querySelector('.loader');
+    loader.classList.add('show');
+
+    var zip_code = 33129;
+
+    var zipCodeRef = database.ref('settings');
+    // Retrieve the zip_code value
+    zipCodeRef.once('value', function(snapshot) {
+      zip_code = snapshot.val().zip_code;
+      getProperties(12, 2);
+      
+      init()
+    });
+    
+    function init() {
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      const search = urlParams.get('search')
+      // console.log(search)
+      if (search != null) {
+        document.getElementById('search').value=search;
+        zip_code = search;
+      }
+      getProperties(12, 2);
+    }
+
+    function getSearch() {
+      var code = document.getElementById('search').value;
+      if (search != '') {
+        zip_code = code;
+      }
+      getProperties(12, 2);
+    }
+
+    let filteredData;
+    let properties;
+    function getProperties(limit, offset) {
+      const options = {
+        method: 'GET',
+        headers: {
+          'X-RapidAPI-Key': 'cd139257cemsh0bfcc403f64b85bp112a71jsne274b26a1e4c',
+          'X-RapidAPI-Host': 'us-real-estate.p.rapidapi.com'
+        }
+      };
+
+      fetch('https://us-real-estate.p.rapidapi.com/v2/for-sale-by-zipcode?zipcode=' + zip_code + '&offset=' + offset + '&limit=' + limit, options)
+        .then(response => response.json())
+        .then(response => {
+          console.log(response);
+          var row = '';
+          if( response.data.home_search==null){
+            properties =[];
+          }
+          else{
+            properties = response.data.home_search.results;
+          }
+          // console.log(properties);
+          filteredData = properties;
+          //Filter Baths
+          let baths = document.querySelector('#baths').value;
+          let beds = document.querySelector('#beds').value;
+          let stories = document.querySelector('#stories').value;
+          let min = document.querySelector('#min').value;
+          let max = document.querySelector('#max').value;
+
+          if (baths != '') {
+            filteredData = filteredData.filter(function (item) {
+              return item.description.baths == baths;
+            });
+          }
+          if (beds != '') {
+            filteredData = filteredData.filter(function (item) {
+              return item.description.beds == beds;
+            });
+          }
+          if (stories != '') {
+            filteredData = filteredData.filter(function (item) {
+              return item.description.stories == stories;
+            });
+          }
+          if (min != '') {
+            filteredData = filteredData.filter(function (item) {
+              return item.list_price >= min;
+            });
+          }
+          if (max != '') {
+            filteredData = filteredData.filter(function (item) {
+              return item.list_price <= max;
+            });
+          }
+
+
+          //console.log(filteredData);
+          // <img class="card-img-top" src="${property.primary_photo !== null ? property.primary_photo.href : 'images/blank.png'}" alt="New York">
+
+          let i = 0;
+          filteredData.forEach(property => {
+            let isFav = valueExistsInFav('permalink', property.permalink);
+            let heart;
+            if (isFav == true) { heart = 'fas' } else { heart = 'far' }
+            var photos=''
+              let j=0;
+              if(property.photos!=null){
+                property.photos.forEach(photo => {
+                  var isActive
+                  if(j==0){  isActive='active'; }
+                  else{ isActive=''; }
+                  photos+=`<div class="carousel-item ${isActive}">
+                                      <img src="${photo.href}" class="d-block w-100 " alt="...">
+                            </div>`;
+                  j++;
+                });
+              }
+              else{
+                photos+=`<div class="carousel-item active">
+                                      <img src="images/blank.png" class="d-block w-100 " alt="...">
+                            </div>`;
+              }
+             
+            row += `<div class="col-md-4">
+                          <div class="card">
+                            <div id="myCarousel${i}" class="carousel slide" data-ride="carousel">
+                                <ul class="carousel-indicators">
+                                  <li data-target="#myCarousel${i}" data-slide-to="0" class="active"></li>
+                                  <li data-target="#myCarousel${i}" data-slide-to="1"></li>
+                                </ul>
+                              <div class="carousel-inner">
+                                ${photos}
+                              </div>
+                                <a class="carousel-control-prev" href="#myCarousel${i}" role="button" data-slide="prev">
+                                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                  <span class="sr-only">Previous</span>
+                                </a>
+                                <a class="carousel-control-next" href="#myCarousel${i}" role="button" data-slide="next">
+                                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                  <span class="sr-only">Next</span>
+                                </a>
+                            </div>
+                            <div class="card-body">
+                              <h5 class="card-title">${property.permalink}</h5>
+                              <p class="lead ">$ ${property.list_price} <i class="${heart} fa-heart float-right" id="heart${i}" onclick="addRemoveFav(${i})"></i></p>
+                              <p class="card-text"><i class="fas fa-map-marker-alt"></i> ${property.location.address.city}, ${property.location.county.name}</p>
+                              <p class="card-text">Beds: ${property.description.beds} | Baths: ${property.description.baths} | Stories: ${property.description.stories} | Garage: ${property.description.garage}</p>
+                              <button onclick="book(${i})" class="btn btn-sm btn-outline-primary">Book Now</button>
+                              </div>
+                          </div>
+                  </div>`;
+            i++;
+          });
+          document.querySelector('#properties').innerHTML = row;
+          if(filteredData.length<1){
+            document.querySelector('#properties').innerHTML = '<h4 class="text-danger p-3">No Property is found in your criteria. Try another</h4>';
+          }
+        })
+        .catch(err => console.error(err));
+
+    }
+
+  </script>
+
+
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-auth.js"></script>
+  <script>
+    function addRemoveFav(key) {
+      if (!isUserLogin()) {
+        return alert('Please login to add favorites.')
+      }
+      else {
+        // console.log(filteredData[key]);
+        var classes = document.querySelector("#heart" + key).classList;
+        classes.toggle('fas');
+        classes.toggle('far');
+        let myArrayS = localStorage.getItem('favorites');
+        let favList = JSON.parse(myArrayS);
+        if(favList==null){
+          favList =[];
+        }
+        // console.log(favList);
+        let isExist = valueExistsInArray(favList, 'permalink', filteredData[key].permalink);
+        if (isExist.status == true) {
+          favList.splice(isExist.index, 1);
+          let myArrayString = JSON.stringify(favList);
+          localStorage.setItem('favorites', myArrayString);
+        }
+        else {
+          favList.push(filteredData[key]);
+          let myArrayString = JSON.stringify(favList);
+          localStorage.setItem('favorites', myArrayString);
+        }
+
+      }
+    }
+    function valueExistsInFav(key, value) {
+      let myArrayS = localStorage.getItem('favorites');
+      let favList = JSON.parse(myArrayS);
+      try {
+        for (let i = 0; i < favList.length; i++) {
+          if (favList[i][key] === value) {
+            return true;
+          }
+        }
+        return false;
+
+      } catch (error) {
+        return false;
+      }
+
+
+    }
+    // Define a function to check if a value exists in the array
+    function valueExistsInArray(arr, key, value) {
+      try {
+        for (let i = 0; i < arr.length; i++) {
+          if (arr[i][key] === value) {
+            return { "status": true, "index": i };
+          }
+        }
+        return false;
+      } catch (error) {
+        return false;
+      }
+
+
+    }
+
+
+  </script>
+
+
+</body>
+
+</html>

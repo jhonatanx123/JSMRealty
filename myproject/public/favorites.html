@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Favorite Properties | JSM Realty</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+    integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+</head>
+
+<body>
+
+  <!-- Header -->
+  <div id="navbar"></div>
+
+  <!-- Featured Listings -->
+  <div class="container">
+    <h2 class="text-center mt-5">Favorite Properties</h2>
+    <hr width="50" color="#007bff">
+    <div class="row" id="properties">
+      <p class="text-center w-100">
+        <span class="loader" style="width: 50px; height: 50px;"></span>
+      </p>
+    </div>
+
+  </div>
+
+  <br>
+
+
+  <!-- Footer -->
+  <footer class="footer py-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4">
+          <h4>About Us</h4>
+          <p>Our realty corporation is based on selling properties within a certain zipcode grid. 
+            You will be consistently updated on new properties as they enter the market.</p>
+        </div>
+        <div class="col-md-4">
+          <h4>Contact Us</h4>
+          <p>11 Wall Street<br>
+            New York, NY 10005<br>
+            (555) 555-1212<br>
+            info@realestate.com</p>
+        </div>
+        <div class="col-md-4">
+          <h4>Follow Us</h4>
+          <a href="#"><i class="fab fa-facebook fa-2x mx-2"></i></a>
+          <a href="#"><i class="fab fa-twitter fa-2x mx-2"></i></a>
+          <a href="#"><i class="fab fa-instagram fa-2x mx-2"></i></a>
+          <a href="#"><i class="fab fa-linkedin fa-2x mx-2"></i></a>
+        </div>
+      </div>
+    </div>
+
+  </footer>
+  <div class="footer-bottom text-white p-2 text-center">
+    <p>Copyright @ 2023 By JSM Realty</p>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-storage.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-auth.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    var database = firebase.database();
+    var loader = document.querySelector('.loader');
+    loader.classList.add('show');
+
+
+    let filteredData;
+
+    showFavorite()
+
+    function showFavorite() {
+      let i = 0;
+      let myArrayS = localStorage.getItem('favorites');
+      filteredData = JSON.parse(myArrayS);
+      var row = ''
+      console.log(filteredData)
+      if(filteredData!=null){
+        filteredData.forEach(property => {
+          //let isFav = valueExistsInFav('permalink', property.permalink);
+          let heart = 'fas';
+          //console.log(isFav)
+          //if (isFav == true) { heart = 'fas' } else { heart = 'far' }
+
+          //if (isFav) {
+          row += `<div class="col-md-4">
+                            <div class="card">
+                              <img class="card-img-top" src="${property.primary_photo.href}" alt="New York">
+                              <div class="card-body">
+                                <h5 class="card-title">${property.permalink}</h5>
+                                <p class="lead ">$ ${property.list_price} <i class="${heart} fa-heart float-right" id="heart${i}" onclick="addRemoveFav(${i})"></i> </p>
+                                <p class="card-text"><i class="fas fa-map-marker-alt"></i> ${property.location.address.city}, ${property.location.county.name}</p>
+                                <p class="card-text">Beds: ${property.description.beds} | Baths: ${property.description.baths} | Stories: ${property.description.stories} | Garage: ${property.description.garage}</p>
+                              </div>
+                            </div>
+                    </div>`;
+          //}
+          i++;
+        });
+        document.querySelector('#properties').innerHTML = row;
+    }
+    else{
+      row='<h4 class="m-5 ">No favorite property is found <a href="properties.html">Browse Properties</a></h4>' 
+      document.querySelector('#properties').innerHTML = row;
+
+    }
+    }
+
+
+  </script>
+
+
+  <script>
+    function addRemoveFav(key) {
+      // console.log(filteredData[key]);
+      if (!isUserLogin()) {
+        return alert('Please login to add favorites.')
+      }
+      var classes = document.querySelector("#heart" + key).classList;
+      classes.toggle('fas');
+      classes.toggle('far');
+      let myArrayS = localStorage.getItem('favorites');
+      let favList = [];
+      if (myArrayS != null) {
+        favList = JSON.parse(myArrayS);
+      }
+
+
+      //console.log(favList);
+      let isExist = valueExistsInArray(favList, 'permalink', filteredData[key].permalink);
+      if (isExist.status == true) {
+        favList.splice(isExist.index, 1);
+        let myArrayString = JSON.stringify(favList);
+        localStorage.setItem('favorites', myArrayString);
+      }
+      else {
+        favList.push(filteredData[key]);
+        let myArrayString = JSON.stringify(favList);
+        localStorage.setItem('favorites', myArrayString);
+      }
+
+    }
+    function valueExistsInFav(key, value) {
+
+      let myArrayS = localStorage.getItem('favorites');
+      let favList = JSON.parse(myArrayS);
+
+      // console.log(favList);
+      try {
+        for (let i = 0; i < favList.length; i++) {
+          console.log(favList[i][key])
+          if (favList[i][key] === value) {
+            return true;
+          }
+          return false;
+        }
+      } catch (error) {
+        return false;
+      }
+
+
+    }
+    // Define a function to check if a value exists in the array
+    function valueExistsInArray(arr, key, value) {
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i][key] === value) {
+          return { "status": true, "index": i };
+        }
+      }
+      return false;
+    }
+
+ 
+  </script>
+
+
+</body>
+
+</html>

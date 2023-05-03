@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>JSM Realty Home Page</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+    integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+</head>
+
+<style>
+  #loan-form {
+    background-color: #343a40;
+    color: white;
+    font-weight: 600;
+    border-radius: 10px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+    margin: 50px;
+    padding: 50px;
+    text-align: left;
+  }
+
+  #loan-list {
+    margin: 20px auto;
+    display: flex;
+
+  }
+
+  #loan-list .col {
+    flex: 1;
+    margin: 10px 20px;
+  }
+
+  #loan-list .col label {
+    flex: 1;
+    font-size: 25px;
+
+  }
+
+  #loan-list .col input {
+    width: 70%;
+  }
+
+  .cal-amount {
+    padding: 5px 20px;
+    font-size: 20px !important;
+    background-color: aliceblue;
+    color: #343a40;
+    /* float: right; */
+    margin-right: 20px;
+  }
+
+  .current-value {
+    font-size: 20px;
+  }
+
+  @media only screen and (max-width: 860px) {
+    #loan-list .col input {
+      width: 98%;
+    }
+
+    #loan-form {
+      padding: 10px;
+      margin: 5px;
+    }
+
+    #loan-list {
+      display: block;
+    }
+
+    .cal-amount {
+      float: none;
+      display: inline-block;
+    }
+
+    #loan-list .col label {
+      font-size: 20px;
+    }
+
+    .current-value {
+      font-size: 18px;
+    }
+  }
+</style>
+
+<body>
+
+  <!-- Header -->
+  <div id="navbar"></div>
+
+  <div class="jumbotron">
+    <div class="container">
+      <h4>JSM Realty Mortgage Calculator</h4>
+      <hr width="200" align="left">
+    </div>
+  </div>
+
+  <div id="loan-form">
+    <form>
+      <div class="row" id="loan-list">
+        <div class="col">
+          <label for="loan-amount">Desired credit amount:</label> <br>
+          <input type="number" value=0 id="loan-amount" class="form-control" name="loan-amount">
+          <!-- <input type="range" id="loan-amount" onchange="calculateLoan()" step="100" value="2000" min="500" max="25000" name="loan-amount">  -->
+          <!-- <span class="current-value">$ <span id="loan-amount-current">2000</span></span> -->
+        </div>
+        <div class="col">
+          <label for="loan-amount">Desired duration in months:</label> <br>
+          <input type="number" value=0 id="loan-term" class="form-control" name="loan-term">
+          <!-- <input type="range" id="loan-term" onchange="calculateLoan()" min="6" step="6" value="6" max="84" name="loan-term">  -->
+          <!-- <span class="current-value"><span id="loan-term-current">48</span> months</span> -->
+        </div>
+      </div>
+      <br>
+      <hr>
+      <div class="row" id="loan-list">
+        <div class="col">
+          <label for="">Fixed interest of: </label>
+          <input id="interestRate1" type="number" class="form-control" placeholder="0%" value=0>
+        </div>
+        <!-- <div class="col">
+                <label for="">Fixed annual interest of </label> 
+                <input id="interestRate2" type="number" placeholder="0%" value=0>
+                <label class="cal-amount">$ <span id="amount2">50.63</span></label> <br>
+              </div> -->
+      </div>
+      <div class="row" id="loan-list">
+        <div class="col">
+          <label class="cal-amount"> Monthly Payment:$ <span id="amount1">0</span></label>
+        </div>
+      </div>
+    </form>
+    <br>
+  </div>
+
+
+
+
+  <!-- Footer -->
+  <footer class="footer py-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4">
+          <h4>About Us</h4>
+          <p>Our realty corporation is based on buying and selling properties within a certain zipcode grid.
+            You will be consistently updated on new properties as they enter the market.</p>
+        </div>
+        <div class="col-md-4">
+          <h4>Contact Us</h4>
+          <p>11 Wall Street<br>
+            New York, NY 10005<br>
+            (555) 555-1212<br>
+            info@realestate.com</p>
+        </div>
+        <div class="col-md-4">
+          <h4>Follow Us</h4>
+          <a href="#"><i class="fab fa-facebook fa-2x mx-2"></i></a>
+          <a href="#"><i class="fab fa-twitter fa-2x mx-2"></i></a>
+          <a href="#"><i class="fab fa-instagram fa-2x mx-2"></i></a>
+          <a href="#"><i class="fab fa-linkedin fa-2x mx-2"></i></a>
+        </div>
+      </div>
+    </div>
+
+  </footer>
+  <div class="footer-bottom text-white p-2 text-center">
+    <p>Copyright @ 2023 By JSM Realty</p>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-storage.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-auth.js"></script>
+
+  <script src="js/calculator.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/main.js"></script>
+
+
+
+</body>
+
+</html>

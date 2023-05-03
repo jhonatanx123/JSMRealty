@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashbaord - JSM Realty</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/custom.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+</head>
+<body>
+
+  <!-- Header -->
+  <nav class="navbar navbar-expand-lg top-fixed sticky-top  p-3 bg-white border navbar-light ">
+    <div class="container">
+
+      <a class="navbar-brand " href="../index.html" > JSM Realty</a>
+
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link"  >Hi,  <span id="adminName">Admin</span> </a>
+            </li>
+        </ul>
+
+      </div>
+    </div>
+
+  </nav>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-3 bg-light border">
+        <h5 class="mt-3 text-center">Admin Panel</h5> 
+        <hr>
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+              <a class="nav-link text-center"  >Hi,  <span id="adminName">Admin</span> </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link"  href="dashboard.html"> <i class="fas fa-home"></i> Dashboard</a>
+          </li>
+        <li class="nav-item">
+          <a class="nav-link"  href="bookings.html"> <i class="fas fa-bookmark"></i> Bookings</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link"  href="users.html"> <i class="fas fa-users"></i> Users</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link"  href="messages.html"> <i class="fas fa-comments"></i> Messages</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link"  href="settings.html"> <i class="fas fa-gear"></i> Setting</a>
+        </li>
+
+
+          <li class="nav-item">
+              <a class="nav-link" id="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+          </li>
+
+      </ul>
+      </div>
+      <div class="col-md-9 p-3 ">
+        <div class="row mx-5">
+          <div class="col-md-4 px-0 border" style="height:560px;">
+            <div class="bg-light p-3 text-center"> <h5>Users</h5> </div>
+
+            <div class="users" id="users" style="height:500px; overflow-y: auto; ">
+              <!-- <a href="">
+                <div class="pepole border p-2">
+                 <h6>User 1</h6>
+                </div>
+              </a> -->
+              <span  class="loader"></span>
+
+            </div>
+          </div>
+          <div class="col-md-8 pl-0">
+            <div class="messaging w-100 ">
+         
+              <div class="inbox_msg">
+                  <div class="bg-light p-3 text-center"> <h5><span id="user_name"></span> Messages</h5> </div>
+          
+                  <div class="mesgs">
+                    <div class="msg_history">
+                      <span  class="loader"></span>
+                      <div id="all_messages">
+                        
+                      </div>
+                      
+                    </div>
+                    <div class="type_msg">
+                      <div class="input_msg_write">
+                        <input type="hidden"  id="user_email"  />
+                        <input type="text" class="write_msg" id="message" placeholder="Type a message" />
+                        <button class="msg_send_btn" type="button" onclick="sendMsg()"><i class="fas fa-paper-plane" aria-hidden="true"></i></button>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        
+          
+      </div>
+    </div>
+  </div>
+
+
+
+  
+  <br> <br>
+  
+ 
+  
+    <!-- Footer -->
+    <div class="footer-bottom text-white p-2 text-center">
+      <p >Copyright @ 2023 By JSM Realty</p>
+    </div>
+
+<script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-storage.js"></script>
+
+<script src="../js/firebase.js"></script>
+
+<script>
+    
+    var database = firebase.database();
+    var loader=document.querySelector('.loader');
+    loader.classList.add('show');
+   
+    //Check If Admin is logged in or not
+    var admin = JSON.parse(sessionStorage.getItem("admin"));
+    if(admin==null){
+        window.location.href='signin.html'
+    }
+
+    database.ref("users")
+      .once("value")
+      .then(function(snapshot) {
+            var row='';
+            snapshot.forEach(function(childSnapshot) {
+                const data = childSnapshot.val();
+               
+                row+=`<a href="#" onclick="getChat('${data.email}','${data.name}')">
+                        <div class="pepole border p-2">
+                        <h6>${data.name}</h6>
+                        </div>
+                      </a>`;
+            });
+            document.querySelector('#users').innerHTML=row;
+            loader.classList.remove('show');
+
+        })
+      .catch(function(error) {
+          console.log("Error getting data: ", error);
+    });
+
+
+    function getChat(email,name) {
+      var loader=  document.querySelector('.loader');
+      loader.classList.add('show');
+       
+      document.querySelector('#user_name').innerText=name;
+      document.querySelector('#user_email').value=email;
+
+
+      database.ref("messages").orderByChild("user/email").equalTo(email)
+        .on("value", (snapshot) => {
+          var html='';
+            snapshot.forEach((childSnapshot) => {
+              const message = childSnapshot.val();
+              if(message.sender=='admin'){
+                html+=`<div class="outgoing_msg">
+                        <div class="sent_msg">
+                          <p>${message.message}</p>
+                          <span class="time_date"> ${message.send_at}</span> </div>
+                      </div>`;
+                  }
+                  else{
+                    html+=` <div class="incoming_msg">
+                          <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+                          <div class="received_msg">
+                            <div class="received_withd_msg">
+                              <p>${message.message}</p>
+                              <span class="time_date"> ${message.send_at}</span></div>
+                          </div>
+                        </div>`;
+                  }
+          });
+          
+          loader.classList.remove('show');
+          document.querySelector('#all_messages').innerHTML=html;
+        });
+
+    }
+
+    function sendMsg() {
+    var email= document.querySelector('#user_email').value;
+
+      const now = new Date();
+      const formattedDate = now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' });
+      // console.log(formattedDate);
+      var msg=document.getElementById('message');
+
+      var message = {
+        message: msg.value,
+        user: {email:email},
+        send_at: formattedDate,
+        sender:'admin',
+        is_read:false,
+      };
+      // Store the message object in Firebase
+      database.ref('messages').push(message);
+      document.getElementById('message').value='';
+
+    }
+
+    database.ref("admin").orderByChild("email").startAt(admin.user.email)
+      .once("value")
+      .then(function(snapshot) {
+        snapshot.forEach(function(childSnapshot) {
+            // childSnapshot.val() is an object containing the child's data
+            document.getElementById('adminName').innerText=childSnapshot.val().name;
+        });
+        })
+      .catch(function(error) {
+          console.log("Error getting data: ", error);
+    });
+    // Logout User
+    document.querySelector("#logout").onclick = function() {
+        sessionStorage.removeItem("admin");
+        window.location.href='signin.html';
+    }
+
+
+</script>
+
+
+  </body>
+  </html>
+  

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - JSM Realty</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <!-- Custom CSS -->
+  <style>
+    body {
+      background-color: #f7f7f7;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="text-center">Sign Up</h3>
+          </div>
+          <div class="card-body">
+            <form id="signup-form">
+              <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+              </div>
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+              </div>
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+              </div>
+              <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+              </div>
+              <div class="form-group">
+                <label for="zip">Zip Code</label>
+                <input type="text" class="form-control" id="zip" name="zip" required>
+              </div>
+              <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+                <label class="form-check-label" for="terms">I agree to the <a href="#">terms and conditions</a></label>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block loader-btn">Sign Up <span class="loader"></span></button>
+              
+              <label class="form-check-label" for="terms"><a href="index.html">Back to Home</a></label>
+
+              <br>
+              <label class="form-check-label" for="terms">Already have an account? <a href="signin.html">Signin</a></label>
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-K9HbJz7SGRREwQ1bc6+ZU3JvCX8VZc+5Bd7kF9hQ1Mce5qu5wNIuCIxK1Xd+/DvG" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-Ogvr3z1C6FL9Ik+3s+6TqcWwEHcJw7U/6Zdj9jqyIstkOGkaOsE9k9Xo3IxtY6T0" crossorigin="anonymous"></script>
+   -->
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
+
+  <script src="js/firebase.js"></script>
+  
+  <script>
+
+    var database = firebase.database();
+   
+		// Sign Up Event Listener
+    var form=	document.getElementById('signup-form');
+    var loader=document.querySelector('.loader');
+    form.addEventListener('submit', function(event) {
+			event.preventDefault();
+      loader.classList.add('show');
+
+			var name = document.getElementById('name').value;
+			var email = document.getElementById('email').value;
+			var zip = document.getElementById('zip').value;
+			var password = document.getElementById('password').value;
+			var confirm_password = document.getElementById('confirm_password').value;
+      if(password!==confirm_password){
+        alert('Error! Passwords do not match.');
+        loader.classList.remove('show');
+      }
+      else{
+            
+        firebase.auth().createUserWithEmailAndPassword(email, password)
+          .then(function(user) {
+            var user = {
+              name: name,
+              email: email,
+              zip: zip,
+            };
+            // Store the user object in Firebase
+            database.ref('users').push(user);
+
+            form.reset();
+            loader.classList.remove('show');
+            alert('Success! Account created successfully.');
+            // window.location.href='signin.html';
+            console.log('User created successfully');
+          })
+          .catch(function(error) {
+            alert(error);
+            console.error(error.message);
+            loader.classList.remove('show');
+          });
+      }
+
+		});
+  
+</script>
+
+</body>
+
+</html>
+

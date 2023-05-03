@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>JSM Realty Home Page</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+    integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+</head>
+
+<body>
+
+  <!-- Header -->
+  <div id="navbar"></div>
+
+  <div class="jumbotron header">
+
+    <div class="container">
+      <h1 class="display-4 pt-5 text-center text-white">Find Your Dream Home Today</h1>
+      <p class="text-center text-white lead">Don't look more, we have a large selection of that will <br> best suit
+        and accomdate you. </p>
+      <form class="form-inline py-5" action="properties.html" method="GET">
+        <div class="form-group mx-auto">
+          <input type="search" class="form-control mr-2 p-2 search" name="search"
+            placeholder="Search Properties by ZIP Code...">
+          <button type="submit" class="btn btn-primary rounded">Search</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <section id="how-it-works" class="bg-light">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="icon-box text-center">
+            <i class="fas fa-search text-primary display-4 mb-3"></i>
+            <h3>Search Properties</h3>
+            <p>Use our advanced search tools to find the perfect property for you. Filter by location, price, and more.
+            </p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="icon-box text-center">
+            <i class="fas fa-home text-primary display-4 mb-3"></i>
+            <h3>View Properties</h3>
+            <p>View detailed property information, photos, and virtual tours. Schedule a showing with one of our agents.
+            </p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="icon-box text-center">
+            <i class="fas fa-hand-holding-usd text-primary display-4 mb-3"></i>
+            <h3>Buy Today</h3>
+            <p>Work with one of our agents to make an offer, negotiate terms, and close the deal.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Listings -->
+  <div class="container">
+    <h2 class="text-center mt-5">Featured Listings</h2>
+    <hr width="50" color="#007bff">
+    <div class="row" id="properties">
+      <p class="text-center w-100">
+        <span class="loader" style="width: 50px; height: 50px;"></span>
+      </p>
+    </div>
+
+  </div>
+
+  <br>
+  <br>
+
+
+  <!-- Call to Action -->
+  <div class="jumbotron jumbotron-fluid text-white bottom-banner">
+    <div class="container">
+      <h2 class="display-4">Ready to Buy or Sell?</h2>
+      <p class="lead">Our experienced agents are ready to help you find your dream home or sell your property.</p>
+      <a class="btn btn-light btn-lg" href="#">Contact Us</a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer py-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4">
+          <h4>About Us</h4>
+          <p>Our realty corporation is based on buying and selling properties within a certain zipcode grid. 
+            You will be consistently updated on new properties as they enter the market.</p>
+        </div>
+        <div class="col-md-4">
+          <h4>Contact Us</h4>
+          <p>11 Wall Street<br>
+            New York, NY 10005<br>
+            (555) 555-1212<br>
+            info@realestate.com</p>
+        </div>
+        <div class="col-md-4">
+          <h4>Follow Us</h4>
+          <a href="#"><i class="fab fa-facebook fa-2x mx-2"></i></a>
+          <a href="#"><i class="fab fa-twitter fa-2x mx-2"></i></a>
+          <a href="#"><i class="fab fa-instagram fa-2x mx-2"></i></a>
+          <a href="#"><i class="fab fa-linkedin fa-2x mx-2"></i></a>
+        </div>
+      </div>
+    </div>
+
+  </footer>
+  <div class="footer-bottom text-white p-2 text-center">
+    <p>Copyright @ 2023 By JSM Realty</p>
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-storage.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-auth.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/booking.js"></script>
+
+  <script>
+    document.getElementById("fav").style.display = "none"
+
+    var database = firebase.database();
+    var loader = document.querySelector('.loader');
+    loader.classList.add('show');
+    let zip_code=33129;
+
+    var zipCodeRef = database.ref('settings');
+    // Retrieve the zip_code value
+    zipCodeRef.once('value', function(snapshot) {
+      zip_code = snapshot.val().zip_code;
+      getProperties(zip_code);
+    });
+    
+    let properties;
+
+    function getProperties(code) {
+
+      const options = {
+        method: 'GET',
+        headers: {
+          'X-RapidAPI-Key': 'cd139257cemsh0bfcc403f64b85bp112a71jsne274b26a1e4c',
+          'X-RapidAPI-Host': 'us-real-estate.p.rapidapi.com'
+        }
+      };
+      fetch('https://us-real-estate.p.rapidapi.com/v2/for-sale-by-zipcode?zipcode='+code+'&offset=2&limit=9', options)
+        .then(response => response.json())
+        .then(response => {
+          var row = '';
+          properties = response.data.home_search.results;
+          //console.log(response);
+          let i = 0;
+          if(properties.length >0){
+            properties.forEach(property => {
+              let isFav = valueExistsInFav('permalink', property.permalink);
+              let heart;
+              if (isFav == true) { heart = 'fas' } else { heart = 'far' }
+              var photos=''
+              let j=0;
+              if(property.photos!=null){
+                property.photos.forEach(photo => {
+                  var isActive
+                  if(j==0){  isActive='active'; }
+                  else{ isActive=''; }
+                  photos+=`<div class="carousel-item ${isActive}">
+                                      <img src="${photo.href}" class="d-block w-100 " alt="...">
+                            </div>`;
+                  j++;
+                });
+              }
+              else{
+                photos+=`<div class="carousel-item active">
+                                      <img src="images/blank.png" class="d-block w-100 " alt="...">
+                            </div>`;
+              }
+            
+                row += `<div class="col-md-4">
+                          <div class="card">
+                            <div id="myCarousel${i}" class="carousel slide" data-ride="carousel">
+                                <ul class="carousel-indicators">
+                                  <li data-target="#myCarousel${i}" data-slide-to="0" class="active"></li>
+                                  <li data-target="#myCarousel${i}" data-slide-to="1"></li>
+                                </ul>
+                              <div class="carousel-inner">
+                                ${photos}
+                              </div>
+                                <a class="carousel-control-prev" href="#myCarousel${i}" role="button" data-slide="prev">
+                                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                  <span class="sr-only">Previous</span>
+                                </a>
+                                <a class="carousel-control-next" href="#myCarousel${i}" role="button" data-slide="next">
+                                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                  <span class="sr-only">Next</span>
+                                </a>
+                            </div>
+
+                            <div class="card-body">
+                              <h5 class="card-title">${property.permalink}</h5>
+                              <p class="lead ">$ ${property.list_price}  <i class="${heart} fa-heart float-right" id="heart${i}" onclick="addRemoveFav(${i})"></i></p>
+                              <p class="card-text"><i class="fas fa-map-marker-alt"></i> ${property.location.address.city}, ${property.location.county.name}</p>
+                              <p class="card-text">Beds: ${property.description.beds} | Baths: ${property.description.baths} | Stories: ${property.description.stories} | Garage: ${property.description.garage}</p>
+                              <button onclick="book(${i})" class="btn btn-sm btn-outline-primary">Book Now</button>
+                            </div>
+                          </div>
+                    </div>`;
+               i++;
+          });
+         }
+         else{
+          row+='<h4 class="text-danger">No property is found in this zip '+code+'</h4>';
+         }
+
+            document.querySelector('#properties').innerHTML = row;
+        })
+        .catch(err => console.error(err));
+    }
+
+  </script>
+
+
+  <script>
+   
+    function addRemoveFav(key) {
+      // console.log(filteredData[key]);
+      if (!isUserLogin()) {
+        return alert('Please login to add favorites.')
+      }
+      else {
+        var classes = document.querySelector("#heart" + key).classList;
+        classes.toggle('fas');
+        classes.toggle('far');
+        let myArrayS = localStorage.getItem('favorites');
+        let favList = [];
+        if (myArrayS != null) {
+          favList = JSON.parse(myArrayS);
+        }
+
+        //console.log(favList);
+        let isExist = valueExistsInArray(favList, 'permalink', properties[key].permalink);
+        if (isExist.status == true) {
+          favList.splice(isExist.index, 1);
+          let myArrayString = JSON.stringify(favList);
+          localStorage.setItem('favorites', myArrayString);
+        }
+        else {
+          favList.push(properties[key]);
+          let myArrayString = JSON.stringify(favList);
+          localStorage.setItem('favorites', myArrayString);
+        }
+      }
+
+    }
+    function valueExistsInFav(key, value) {
+      let myArrayS = localStorage.getItem('favorites');
+      let favList = JSON.parse(myArrayS);
+      
+      try {
+        for (let i = 0; i < favList.length; i++) {
+          if (favList[i][key] === value) {
+            return true;
+          }
+        }
+        return false;
+      } catch (error) {
+        return false;
+      }
+
+
+    }
+    // Define a function to check if a value exists in the array
+    function valueExistsInArray(arr, key, value) {
+      try {
+        for (let i = 0; i < arr.length; i++) {
+          if (arr[i][key] === value) {
+            return { "status": true, "index": i };
+          }
+        }
+        return false;
+      } catch (error) {
+        return false;
+      }
+
+
+    }
+
+  </script>
+
+
+
+</body>
+
+</html>

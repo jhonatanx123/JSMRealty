@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>My Bookings | JSM Realty</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+    integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+</head>
+
+<body>
+
+  <!-- Header -->
+  <div id="navbar"></div>
+
+  <!-- Featured Listings -->
+  <div class="container">
+    <h2 class="text-center mt-5">Notifications</h2>
+    <hr width="50" color="#007bff">
+    <table class="table mt-3">
+      <thead>
+        <tr>
+          <th>Message</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="bookings">
+      </tbody>
+    </table>
+    <span class="loader"></span>
+
+  </div>
+
+  <br>
+
+
+  <!-- Footer -->
+  <footer class="footer py-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4">
+          <h4>About Us</h4>
+          <p>Our realty corporation is based on selling properties within a certain zipcode grid. 
+            You will be consistently updated on new properties as they enter the market.</p>
+        </div>
+        <div class="col-md-4">
+          <h4>Contact Us</h4>
+          <p>11 Wall Street<br>
+            New York, NY 10005<br>
+            (555) 555-1212<br>
+            info@realestate.com</p>
+        </div>
+        <div class="col-md-4">
+          <h4>Follow Us</h4>
+          <a href="#"><i class="fab fa-facebook fa-2x mx-2"></i></a>
+          <a href="#"><i class="fab fa-twitter fa-2x mx-2"></i></a>
+          <a href="#"><i class="fab fa-instagram fa-2x mx-2"></i></a>
+          <a href="#"><i class="fab fa-linkedin fa-2x mx-2"></i></a>
+        </div>
+      </div>
+    </div>
+
+  </footer>
+  <div class="footer-bottom text-white p-2 text-center">
+    <p>Copyright @ 2023 By JSM Realty</p>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-storage.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-auth.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    var database = firebase.database();
+    var loader = document.querySelector('.loader');
+    loader.classList.add('show');
+    var email;
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in, you can access firebase.auth().currentUser here
+        const user=firebase.auth().currentUser;
+        database.ref("notifications").orderByChild("user/email").equalTo(user.email)
+        .once("value")
+        .then(function(snapshot) {
+              var row='';
+              snapshot.forEach(function(childSnapshot) {
+                  const data = childSnapshot.val();
+                  if(data.is_read==true){
+                    var nRow=`<span class="badge alert-success">READ</span> `;
+                  }
+                  else{
+                    var nRow=`<button class="btn btn-success m-1 btn-sm" onclick="markRead('${childSnapshot.key}')"><i class="fas fa-check"></i> Read </button>`;
+                  }
+                  row+=` <tr>
+                          <td>${data.message}</td>
+                          <td>${nRow}</td>
+                          <td><button class="btn btn-sm btn-danger" onclick="delNoti('${childSnapshot.key}')"><i class="fas fa-trash"></i></button></td>
+                      </tr>`;
+              });
+              document.querySelector('#bookings').innerHTML=row;
+              loader.classList.remove('show');
+
+          })
+        .catch(function(error) {
+                console.log("Error getting data: ", error);
+          });
+
+      } else {
+        // User is signed out
+        console.log("No user signed in.");
+      }
+    });
+    
+    function markRead(id) {
+        var childRef = database.ref("notifications").child(id);
+        // Update the status property
+        childRef.update({
+          is_read: true
+        });
+        alert('Notification is mark as read successfully');
+        window.location.href='notifications.html';
+    }
+    function delNoti(id) {
+        var childRef = database.ref("notifications").child(id);
+        // Update the status property
+        childRef.remove();
+
+        alert('Notification deleted successfully');
+        window.location.href='notifications.html';
+    }
+
+  </script>
+
+</body>
+
+</html>
